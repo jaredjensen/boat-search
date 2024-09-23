@@ -1,0 +1,42 @@
+<html>
+  <head>
+    <title>Boat Search</title>
+  </head>
+  <body>
+    <div id="boats"></div>
+    <script src="boats.js"></script>
+    <script>
+      const numCols = 6;
+
+      const formatPrice = price => {
+        const formatter = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 0,
+          minimumFractionDigits: 0,
+
+        });
+        return formatter.format(price);
+      };
+
+      const makeCell = boat => `
+        <td style="vertical-align:top;padding-bottom:2em">
+          <a href="${boat.url}" target="_blank"><img src="${boat.image}" width="400" /><br/>${boat.type}</a><br/>
+          ${formatPrice(boat.price)} / ${parseInt(boat.length)}' / ${boat.location}
+        </td>`;
+
+      const rows = [];
+      let cells = [];
+      boats.forEach(x => {
+        cells.push(makeCell(x));
+        if (cells.length === numCols) {
+          rows.push(`<tr>${cells.join('')}</tr>`);
+          cells = [];
+        }
+      });
+
+      const html = `<p>${boats.length} boats</p><table>${rows.join('')}</table>`;
+      document.getElementById('boats').innerHTML = html;
+    </script>
+  </body>
+</html>
