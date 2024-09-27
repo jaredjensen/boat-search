@@ -1,12 +1,40 @@
 <html>
   <head>
     <title>Boat Search</title>
+    <style>
+      #boats {
+        width: 2500px;
+      }
+      #boats > div {
+        border: 1px solid #ccc;
+        display: inline-block;
+        margin: 1em;
+        padding: 1em;
+        vertical-align: top;
+        width: 400px;
+      }
+      #boats > div img {
+        max-width: 100%;
+      }
+    </style>
   </head>
   <body>
+    <p><input type="checkbox" onchange="showIgnored=!showIgnored;render();" /> Show Ignored</p>
+    <div id="count">0 boats</div>
     <div id="boats"></div>
     <script src="boats.js"></script>
     <script>
-      const numCols = 6;
+      let numBoats = 0;
+      let showIgnored = false;
+
+      const ignored = [9266456,9552469,9539475,9552547,9520974,9515343,9505351,9499863,9492463,9489757,9477450,9504842,9470552,9465810,9464799,9451173,9429921,9424853,9413837,9405263,9404526,9401434,9399918,9398064,9397478,9391262,9337440,9312686,9332382,9257561,9215279,9210147,9184566,9165232,9164783,9144901,9139593,9122376,9106544,9142045,9096904,9039660,9026549,8991857,8803214,8602550,8553369,8430538,8175056,8038468,9529223,9451488,9531894,9377602,9549806,9343696,9243217,9342881,9445180,9448446,9490939,8402321,8907090,9508208,9528020,9437459];
+
+      const ignore = id => {
+        ignored.push(id);
+        document.getElementById('boat' + id).style.display = 'none';
+        numBoats--;
+        console.log(ignored.join(','))
+      };
 
       const formatPrice = price => {
         const formatter = new Intl.NumberFormat('en-US', {
@@ -14,29 +42,35 @@
           currency: 'USD',
           maximumFractionDigits: 0,
           minimumFractionDigits: 0,
-
         });
         return formatter.format(price);
       };
 
+      const setCount = () => {
+        document.getElementById('count').innerText = `${numBoats} boats`;
+      };
+
       const makeCell = boat => `
-        <td style="vertical-align:top;padding-bottom:2em">
-          <a href="${boat.url}" target="_blank"><img src="${boat.image}" width="400" /><br/>${boat.type}</a><br/>
+        <div id="boat${boat.id}">
+          <a href="${boat.url}" target="_blank"><img src="${boat.image}" /><br/>${boat.type}</a><br/>
           ${formatPrice(boat.price)} / ${parseInt(boat.length)}' / ${boat.location}
-        </td>`;
+          ${showIgnored ? '' : `<br/><button onclick="ignore(${boat.id})">Ignore</button>`}
+        </div>`;
 
-      const rows = [];
-      let cells = [];
-      boats.forEach(x => {
-        cells.push(makeCell(x));
-        if (cells.length === numCols) {
-          rows.push(`<tr>${cells.join('')}</tr>`);
-          cells = [];
-        }
-      });
+      const render = () => {
+        const cells = [];
+        boats
+          .filter(x => showIgnored || !ignored.includes(x.id))
+          .sort((a, b) => a.id > b.id ? -1 : 1)
+          .forEach(x => {
+            cells.push(makeCell(x));
+          });
+        numBoats = cells.length;
+        document.getElementById('boats').innerHTML = cells.join('');
+        setCount();
+      };
 
-      const html = `<p>${boats.length} boats</p><table>${rows.join('')}</table>`;
-      document.getElementById('boats').innerHTML = html;
+      render();
     </script>
   </body>
 </html>
