@@ -10,7 +10,7 @@ usage() {
 outfile=boats.json
 distance=500mi
 length=38-50
-price=100000-250000
+price=100000-300000
 year=1980-2030
 
 # Flags
@@ -33,7 +33,7 @@ if [ $search -eq 1 ]; then
 fi
 
 # Create boats.js
-ignore='"Bayliner","Meridian","Carver","North Pacific","Sea Ray","Mainship","Navigator","Formula","Fountain","DeFever","Silverton"'
+ignore='"Bayliner","North Pacific","Sea Ray","Mainship","Navigator","Formula","Fountain","DeFever","Silverton"'
 query="[[.search.records[] | select(.make | IN($ignore) | not)][] | { id: .id, type: ((.year|tostring) + \" \" + .make + \" \" + .model), price: .price.type.amount.USD, length: .specifications.dimensions.lengths.nominal.ft, location: (.location.address.city + \" \" + .location.address.subdivision), url: .portalLink, image: .media[0].url }]"
 echo "const boats = $(jq -r "$query" $outfile)" > boats.js
 
